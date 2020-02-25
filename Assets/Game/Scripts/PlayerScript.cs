@@ -28,7 +28,9 @@ public class PlayerScript : MonoBehaviour
     /*[SerializeField]*/
     bool madeHole;
 
-    public int loopcount =0;
+    public int upcount =0;
+    public int downcount = 0;
+    public string holeNum;
     private int[] correctAns;
     private int correctAnsCount;
     bool madeCrackParticle;
@@ -41,7 +43,7 @@ public class PlayerScript : MonoBehaviour
     public int presentLayer = 0;
     Transform cameraTransform;
     public Rigidbody rb;
-
+    int wincount = 0;
 
     void Awake()
     {
@@ -75,14 +77,14 @@ public class PlayerScript : MonoBehaviour
 
                 if (jumpCount == 1)
                 {
-                    Debug.Log("Jump");
+                   // Debug.Log("Jump");
                     madeCrack = true;
                     Invoke("MoveAgain", 2.5f);
                 }
                 else if (jumpCount == 2)
                 {
                     madeHole = true;
-                    Debug.Log("Hole");
+                    //Debug.Log("Hole");
                     Invoke("MoveAgain", 2.5f);
                     jumpCount = 0;
                 }
@@ -98,14 +100,14 @@ public class PlayerScript : MonoBehaviour
 
                 if (flyCount == 1)
                 {
-                    Debug.Log("Jumpp");
+                    //Debug.Log("Jumpp");
                     madeCrackParticle = true;
                     Invoke("MoveAgainParticle", 2.5f);
                 }
                 else if (flyCount == 2)
                 {
                     madeHoleparticle = true;
-                    Debug.Log("Holep");
+                    //Debug.Log("Holep");
                     Invoke("MoveAgainParticle", 2.5f);
                     flyCount = 0;
                 }
@@ -194,12 +196,45 @@ public class PlayerScript : MonoBehaviour
         layers[--presentLayer].gameObject.SetActive(true);
         //correctAnsCount--;
     }
+    public void GameStatus()
+    {
+        if(presentLayer ==1 && holeNum == "Hole 1" && upcount<=3 )
+        {
+            ++wincount;
+            Debug.Log("Wincount1" + wincount);
+        }
+        else if (presentLayer == 2 && holeNum == "Hole 3" && upcount <= 3)
+        {
+            ++wincount;
+            Debug.Log("Wincount2" + wincount);
+        }
+        else if (presentLayer == 3 && holeNum == "Hole 4" && upcount <= 3)
+        {
+            ++wincount;
+            Debug.Log("Wincount3" + wincount);
+        }
+        else if (presentLayer == 4 && upcount <= 3)
+        {
+            ++wincount;
+            Debug.Log("Wincount4" + wincount);
+        }
+        if(upcount>3 ||downcount >=6 )
+        {
+            Debug.Log("GameOver");
+        }
+        if (wincount == 3)
+        {
+            Debug.Log("Has won");
+        }
+      
+
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Hole" && madeCrack)
         {
             other.gameObject.transform.GetChild(0).gameObject.SetActive(true);
-           // cameraAnim.SetTrigger("CameraShake");
+            //cameraAnim.SetTrigger("CameraShake");
 
         }
 
@@ -207,16 +242,20 @@ public class PlayerScript : MonoBehaviour
         {
            
             other.gameObject.transform.GetChild(0).gameObject.SetActive(false);
-           
-       
+            holeNum= other.gameObject.name;
+           // Debug.Log(holeNum);
+            ++downcount;
             Invoke("invokePlanetDown", 0.5f);
+            Invoke("GameStatus", 1.5f);
+            Debug.Log("downcount" + downcount);
+         
            
         }
         if (other.gameObject.tag == "UpStream" && madeCrackParticle)
         {
             Debug.Log("crack trigger particle");
             other.gameObject.transform.GetChild(0).gameObject.SetActive(true);
-            // cameraAnim.SetTrigger("CameraShake");
+             //cameraAnim.SetTrigger("CameraShake");
 
         }
 
@@ -224,14 +263,16 @@ public class PlayerScript : MonoBehaviour
         {
             Debug.Log("hole trigger particle");
             other.gameObject.transform.GetChild(0).gameObject.SetActive(false);
+            ++upcount;
             Invoke("invokePlanetUp", 0.5f);
-            loopcount++;
+
+            Invoke("GameStatus", 1.5f);
+           
+            Debug.Log("upcount" + upcount);
+           
         }
 
-        //if (correctAns[0] == 1 && correctAns[1] == 3 && correctAns[2] == 4 && loopcount < 4)
-        //{
-        //    SceneManager.LoadScene("GameCompleteMenu");
-        //}
+     
     }
 
 }
